@@ -1,0 +1,62 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+%matplotlib inline
+import warnings
+warnings.filterwarnings('ignore')
+from pandas.plotting import lag_plot
+df = pd.read_csv
+df.head(5)
+df.info()
+df.describe()
+df.columns
+sns.pairplot(df)
+sns.jointplot(x='Date',y='Open',data=df)
+df[['Close']].plot()
+plt.title('Tata Motors')
+plt.show()
+dr = df.cumsum()
+df.plot()
+plt.title('Tata Motors cummulative returns')
+plt.figure(figsize=(10,10))
+lag_plot(df['Open'], lag=5)
+plt.title('Tata Motors Autocorrelation plot')
+df['Date'] = pd.to_datetime(df['Date'])
+df['Year'] = df['Date'].dt.year
+df['Month'] = df['Date'].dt.month
+df['Day'] = df['Date'].dt.day
+df['DayOfWeek'] = df['Date'].dt.dayofweek
+df['Quarter'] = df['Date'].dt.quarter
+df['DayOfYear'] = df['Date'].dt.dayofyear
+df.drop(columns=['Date'], inplace=True)
+df
+yer1 =df[(df['Year'] > 2015)]
+yer1
+sns.barplot(x='Year',y='Close',data=yer1,width=0.9)
+corry = yer1.corr()
+sns.heatmap(corry,cmap='coolwarm')
+plt.title('Tata Motors')
+sns.jointplot(x='Open',y='Year',data=yer1,kind='hex',palette='Spectral')
+sns.jointplot(x='Close',y='Year',data=yer1,kind='hex')
+sns.distplot(yer1['Close'],bins=50,kde=False,color='red')
+sns.distplot(yer1['Open'],bins=50,kde=False,color='red')
+yer1.isnull().sum()
+yer1
+X = yer1[['Open','High','Low','Adj Close','Volume','Year','Month','Day','DayOfWeek',
+         'Quarter','DayOfYear']]
+y = yer1['Close']
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.metrics import mean_squared_error
+# Split data into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+rf_model = RandomForestRegressor(n_estimators=100, random_state=42)  # Adjust parameters as needed
+rf_model.fit(X_train, y_train)
+y_pred = rf_model.predict(X_test)
+plt.scatter(y_test,y_pred)
+sns.distplot((y_test,y_pred))
+from sklearn import metrics
+metrics.mean_absolute_error(y_test,y_pred)
+metrics.mean_squared_error(y_test,y_pred)
+np.sqrt(metrics.mean_squared_error(y_test,y_pred))
